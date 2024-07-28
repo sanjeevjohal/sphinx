@@ -1,0 +1,239 @@
+<!--
+ * Copyright (c) 2015 Mountainstorm
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Original from https://github.com/mountainstorm/jquery.graphviz.svg/blob/master/demo.html
+ -->
+<html>
+	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css">
+		<!-- <link rel="stylesheet" href="css/graphviz.svg.css"> -->
+	</head>
+
+	<style>
+        #instructions {
+            color: #000000;
+            position: absolute;
+            z-index: 100;
+            bottom: 0px;
+            left: 0px;
+        }
+    </style>
+	<body>
+		<h4 id="instructions">Click node to highlight; Shift-scroll to zoom; Esc to unhighlight</h4>
+		<div id="graph" style="width: 100%; height: 100%; overflow: scroll;"></div>
+
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="https://cdn.rawgit.com/jquery/jquery-mousewheel/master/jquery.mousewheel.min.js"></script>
+		<script type="text/javascript" src="https://cdn.rawgit.com/jquery/jquery-color/master/jquery.color.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script type="text/javascript">!function(t){"use strict";String.prototype.startsWith=function(t){return 0==this.indexOf(t)},String.prototype.endsWith=function(t){return-1!==this.indexOf(t,this.length-t.length)};var e=function(t,e){this.type=null,this.options=null,this.enabled=null,this.$element=null,this.init("graphviz.svg",t,e)};e.VERSION="1.0.1",e.GVPT_2_PX=32.5,e.DEFAULTS={url:null,svg:null,shrink:"0.125pt",tooltips:{init:function(e){var i=t(this);i.tooltip({container:e,placement:"auto left",animation:!1,viewport:null}).on("hide.bs.tooltip",function(){if(i.attr("data-tooltip-keepvisible"))return!1})},show:function(){var e=t(this);e.attr("data-tooltip-keepvisible",!0),e.tooltip("show")},hide:function(){var e=t(this);e.removeAttr("data-tooltip-keepvisible"),e.tooltip("hide")},update:function(){var e=t(this);e.attr("data-tooltip-keepvisible")&&e.tooltip("show")}},zoom:!0,highlight:{selected:function(t,e){return t},unselected:function(t,e){return jQuery.Color(t).transition(e,.9)}},ready:null},e.prototype.init=function(e,i,n){if(this.enabled=!0,this.type=e,this.$element=t(i),this.options=this.getOptions(n),n.url){var o=this;t.get(n.url,null,function(e){var i=t("svg",e);o.$element.html(document.adoptNode(i[0])),o.setup()},"xml")}else n.svg&&this.$element.html(n.svg),this.setup()},e.prototype.getDefaults=function(){return e.DEFAULTS},e.prototype.getOptions=function(e){return(e=t.extend({},this.getDefaults(),this.$element.data(),e)).shrink&&("object"!=typeof e.shrink&&(e.shrink={x:e.shrink,y:e.shrink}),e.shrink.x=this.convertToPx(e.shrink.x),e.shrink.y=this.convertToPx(e.shrink.y)),e},e.prototype.setup=function(){var e=this.options,i=t(this.$element.children("svg")),n=i.children("g:first");this.$svg=i,this.$graph=n,this.$background=n.children("polygon:first"),this.$nodes=n.children(".node"),this.$edges=n.children(".edge"),this._nodesByName={},this._edgesByName={},this.$element.addClass("graphviz-svg"),this.$background.length&&this.$element.css("background",this.$background.attr("fill"));var o=this;this.$nodes.each(function(){o.setupNodesEdges(t(this),!0)}),this.$edges.each(function(){o.setupNodesEdges(t(this),!1)});var r=this.$graph.children("title");this.$graph.attr("data-name",r.text()),r.remove(),e.zoom&&this.setupZoom(),e.ready&&e.ready.call(this)},e.prototype.setupNodesEdges=function(e,i){var n=this,o=this.options;e.find("polygon, ellipse, path").each(function(){var e=t(this);e.data("graphviz.svg.color",{fill:e.attr("fill"),stroke:e.attr("stroke")}),i&&o.shrink&&n.scaleNode(e)});var r,s,h=e.children("title");if(h[0]){var a=h.text().replace(/:[snew][ew]?/g,"");e.attr("data-name",a),h.remove(),i?this._nodesByName[a]=e[0]:this._edgesByName[a]=e[0];for(var l=e[0].previousSibling;l&&8!=l.nodeType;)l=l.previousSibling;if(null!=l&&8==l.nodeType){var p=(r=l.nodeValue.trim(),(s=document.createElement("div")).innerHTML=r,s.childNodes[0].nodeValue);p!=a&&e.attr("data-comment",p)}}e.children("a").filter(function(){return t(this).attr("xlink:title")}).each(function(){var e=t(this);e.attr("title",e.attr("xlink:title")),e.removeAttr("xlink:title"),o.tooltips&&o.tooltips.init.call(this,n.$element)})},e.prototype.setupZoom=function(){var t=this,e=this.$element,i=this.$svg;this.zoom={width:i.attr("width"),height:i.attr("height"),percentage:null},this.scaleView(100),e.mousewheel(function(n){if(n.shiftKey){var o=t.zoom.percentage;(o-=n.deltaY*n.deltaFactor)<100&&(o=100);var r=n.pageX-i.offset().left,s=n.pageY-i.offset().top,h=r/i.width(),a=s/i.height(),l=n.pageX-e.offset().left,p=n.pageY-e.offset().top;return t.scaleView(o),e.scrollLeft(h*i.width()+.5-l),e.scrollTop(a*i.height()+.5-p),!1}})},e.prototype.scaleView=function(t){var e=this,i=this.$svg;i.attr("width",t+"%"),i.attr("height",t+"%"),this.zoom.percentage=t,this.$nodes.add(this.$edges).children("a[title]").each(function(){e.options.tooltips.update.call(this)})},e.prototype.scaleNode=function(t){var e=this.options.shrink.x,i=this.options.shrink.y,n=t.prop("tagName");if("ellipse"==n)t.attr("rx",parseFloat(t.attr("rx"))-e),t.attr("ry",parseFloat(t.attr("ry"))-i);else if("polygon"==n){var o=t[0].getBBox(),r=o.x+o.width/2,s=o.y+o.height/2,h=t.attr("points").split(" "),a="";for(var l in h){var p=h[l].split(","),d=parseFloat(p[0]),u=parseFloat(p[1]);a+=(r-d)/(o.width/2)*e+d+","+((s-u)/(o.height/2)*i+u)+" "}t.attr("points",a)}},e.prototype.convertToPx=function(t){var i=t;if("string"==typeof t){var n=t.length,o=1;t.endsWith("px")?n-=2:t.endsWith("pt")&&(n-=2,o=e.GVPT_2_PX),i=parseFloat(t.substring(0,n))*o}return i},e.prototype.findEdge=function(t,e,i){var n=[];for(var o in this._edgesByName){var r=e(t,o);r&&(i&&i.push(this._edgesByName[o]),n.push(r))}return n},e.prototype.findLinked=function(e,i,n,o){var r=t(e),s=null;i&&(s=o);var h=this.findEdge(r.attr("data-name"),n,s);for(var a in h){var l=this._nodesByName[h[a]];o.is(l)||(o.push(l),this.findLinked(l,i,n,o))}},e.prototype.colorElement=function(e,i){var n=this.$element.css("background");e.find("polygon, ellipse, path").each(function(){var e=t(this),o=e.data("graphviz.svg.color");o.fill&&"path"!=e.prop("tagName")&&e.attr("fill",i(o.fill,n)),o.stroke&&e.attr("stroke",i(o.stroke,n))})},e.prototype.restoreElement=function(e){e.find("polygon, ellipse, path").each(function(){var e=t(this),i=e.data("graphviz.svg.color");i.fill&&e.attr("fill",i.fill),i.stroke&&e.attr("stroke",i.stroke)})},e.prototype.nodes=function(){return this.$nodes},e.prototype.edges=function(){return this.$edges},e.prototype.nodesByName=function(){return this._nodesByName},e.prototype.edgesByName=function(){return this._edgesByName},e.prototype.linkedTo=function(e,i){var n=t();return this.findLinked(e,i,function(t,e){var i=null,n="->"+t;return e.endsWith(n)&&(i=e.substring(0,e.length-n.length)),i},n),n},e.prototype.linkedFrom=function(e,i){var n=t();return this.findLinked(e,i,function(t,e){var i=null,n=t+"->";return e.startsWith(n)&&(i=e.substring(n.length)),i},n),n},e.prototype.linked=function(e,i){var n=t();return this.findLinked(e,i,function(t,e){return"^"+name+"--(.*)$"},n),this.findLinked(e,i,function(t,e){return"^(.*)--"+name+"$"},n),n},e.prototype.tooltip=function(e,i){var n=this.options;e.each(function(){t(this).children("a[title]").each(function(){i?n.tooltips.show.call(this):n.tooltips.hide.call(this)})})},e.prototype.bringToFront=function(t){t.detach().appendTo(this.$graph)},e.prototype.sendToBack=function(t){this.$background.length?$element.insertAfter(this.$background):t.detach().prependTo(this.$graph)},e.prototype.highlight=function(e,i){var n=this,o=this.options,r=this.$nodes.add(this.$edges);e&&e.length>0?(r.not(e).each(function(){n.colorElement(t(this),o.highlight.unselected),n.tooltip(t(this))}),e.each(function(){n.colorElement(t(this),o.highlight.selected)}),i&&this.tooltip(e,!0)):(r.each(function(){n.restoreElement(t(this))}),this.tooltip(r))},e.prototype.destroy=function(){var t=this;this.hide(function(){t.$element.off("."+t.type).removeData(t.type)})};var i=t.fn.graphviz;t.fn.graphviz=function(i){return this.each(function(){var n=t(this),o=n.data("graphviz.svg"),r="object"==typeof i&&i;!o&&/destroy/.test(i)||(o||n.data("graphviz.svg",o=new e(this,r)),"string"==typeof i&&o[i]())})},t.fn.graphviz.Constructor=e,t.fn.graphviz.noConflict=function(){return t.fn.graphviz=i,this}}(jQuery);</script>
+		<script type="text/javascript">
+ 			$(document).ready(function(){
+                $("#graph").graphviz({
+                    svg: `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.50.0 (20211204.2007)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="584pt" height="424pt"
+ viewBox="0.00 0.00 584.00 423.96" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 419.96)">
+<title>G</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-419.96 580,-419.96 580,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_G</title>
+<path fill="#808080" fill-opacity="0.094118" stroke="black" d="M20,-8C20,-8 556,-8 556,-8 562,-8 568,-14 568,-20 568,-20 568,-395.96 568,-395.96 568,-401.96 562,-407.96 556,-407.96 556,-407.96 20,-407.96 20,-407.96 14,-407.96 8,-401.96 8,-395.96 8,-395.96 8,-20 8,-20 8,-14 14,-8 20,-8"/>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_moduleA</title>
+<path fill="#808080" fill-opacity="0.094118" stroke="black" d="M60,-16C60,-16 548,-16 548,-16 554,-16 560,-22 560,-28 560,-28 560,-96.74 560,-96.74 560,-102.74 554,-108.74 548,-108.74 548,-108.74 60,-108.74 60,-108.74 54,-108.74 48,-102.74 48,-96.74 48,-96.74 48,-28 48,-28 48,-22 54,-16 60,-16"/>
+<text text-anchor="middle" x="304" y="-93.54" font-family="Times,serif" font-size="14.00">moduleA</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_moduleA__A</title>
+<path fill="#808080" fill-opacity="0.094118" stroke="black" d="M225,-307.22C225,-307.22 548,-307.22 548,-307.22 554,-307.22 560,-313.22 560,-319.22 560,-319.22 560,-387.96 560,-387.96 560,-393.96 554,-399.96 548,-399.96 548,-399.96 225,-399.96 225,-399.96 219,-399.96 213,-393.96 213,-387.96 213,-387.96 213,-319.22 213,-319.22 213,-313.22 219,-307.22 225,-307.22"/>
+<text text-anchor="middle" x="386.5" y="-384.76" font-family="Times,serif" font-size="14.00">moduleA.A</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_moduleA__B</title>
+<path fill="#808080" fill-opacity="0.094118" stroke="black" d="M128,-116.74C128,-116.74 548,-116.74 548,-116.74 554,-116.74 560,-122.74 560,-128.74 560,-128.74 560,-287.22 560,-287.22 560,-293.22 554,-299.22 548,-299.22 548,-299.22 128,-299.22 128,-299.22 122,-299.22 116,-293.22 116,-287.22 116,-287.22 116,-128.74 116,-128.74 116,-122.74 122,-116.74 128,-116.74"/>
+<text text-anchor="middle" x="338" y="-284.02" font-family="Times,serif" font-size="14.00">moduleA.B</text>
+</g>
+<!-- __init__ -->
+<g id="node1" class="node">
+<title>__init__</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="162" cy="-342.09" rx="40.09" ry="18"/>
+<text text-anchor="middle" x="162" y="-338.39" font-family="Times,serif" font-size="14.00" fill="#000000">__init__</text>
+</g>
+<!-- moduleA -->
+<g id="node2" class="node">
+<title>moduleA</title>
+<ellipse fill="#ffffff" fill-opacity="0.698039" stroke="black" cx="60" cy="-342.09" rx="44.39" ry="18"/>
+<text text-anchor="middle" x="60" y="-338.39" font-family="Times,serif" font-size="14.00" fill="#000000">moduleA</text>
+</g>
+<!-- moduleA__A -->
+<g id="node3" class="node">
+<title>moduleA__A</title>
+<ellipse fill="#ccfecc" fill-opacity="0.698039" stroke="black" cx="474" cy="-50.87" rx="78.48" ry="26.74"/>
+<text text-anchor="middle" x="474" y="-54.67" font-family="Times,serif" font-size="14.00" fill="#000000">A</text>
+<text text-anchor="middle" x="474" y="-39.67" font-family="Times,serif" font-size="14.00" fill="#000000">(moduleA.py:26)</text>
+</g>
+<!-- moduleA__B -->
+<g id="node4" class="node">
+<title>moduleA__B</title>
+<ellipse fill="#ccfecc" fill-opacity="0.698039" stroke="black" cx="134" cy="-50.87" rx="78.48" ry="26.74"/>
+<text text-anchor="middle" x="134" y="-54.67" font-family="Times,serif" font-size="14.00" fill="#000000">B</text>
+<text text-anchor="middle" x="134" y="-39.67" font-family="Times,serif" font-size="14.00" fill="#000000">(moduleA.py:11)</text>
+</g>
+<!-- moduleA__SequenceOn -->
+<g id="node5" class="node">
+<title>moduleA__SequenceOn</title>
+<ellipse fill="#ccfecc" fill-opacity="0.698039" stroke="black" cx="304" cy="-50.87" rx="73.58" ry="26.74"/>
+<text text-anchor="middle" x="304" y="-54.67" font-family="Times,serif" font-size="14.00" fill="#000000">SequenceOn</text>
+<text text-anchor="middle" x="304" y="-39.67" font-family="Times,serif" font-size="14.00" fill="#000000">(moduleA.py:7)</text>
+</g>
+<!-- moduleA__A____init__ -->
+<g id="node6" class="node">
+<title>moduleA__A____init__</title>
+<ellipse fill="#99ff99" fill-opacity="0.698039" stroke="black" cx="474" cy="-342.09" rx="78.48" ry="26.74"/>
+<text text-anchor="middle" x="474" y="-345.89" font-family="Times,serif" font-size="14.00" fill="#000000">__init__</text>
+<text text-anchor="middle" x="474" y="-330.89" font-family="Times,serif" font-size="14.00" fill="#000000">(moduleA.py:27)</text>
+</g>
+<!-- moduleA__A__funcA -->
+<g id="node7" class="node">
+<title>moduleA__A__funcA</title>
+<ellipse fill="#99ff99" fill-opacity="0.698039" stroke="black" cx="299" cy="-342.09" rx="78.48" ry="26.74"/>
+<text text-anchor="middle" x="299" y="-345.89" font-family="Times,serif" font-size="14.00" fill="#000000">funcA</text>
+<text text-anchor="middle" x="299" y="-330.89" font-family="Times,serif" font-size="14.00" fill="#000000">(moduleA.py:29)</text>
+</g>
+<!-- moduleA__A__funcA&#45;&gt;moduleA__B -->
+<g id="edge8" class="edge">
+<title>moduleA__A__funcA&#45;&gt;moduleA__B</title>
+<path fill="none" stroke="#000000" d="M254.76,-319.72C242.77,-314.78 229.61,-310.14 217,-307.22 203.22,-304.03 99.68,-309.53 90,-299.22 34.48,-240.1 66.19,-194.27 90,-116.74 93.4,-105.68 99.39,-94.82 105.87,-85.24"/>
+<polygon fill="#000000" stroke="#000000" points="108.92,-87 111.91,-76.83 103.24,-82.91 108.92,-87"/>
+</g>
+<!-- moduleA__A__funcA&#45;&gt;moduleA__SequenceOn -->
+<g id="edge6" class="edge">
+<title>moduleA__A__funcA&#45;&gt;moduleA__SequenceOn</title>
+<path fill="none" stroke="#000000" d="M254.74,-319.83C242.74,-314.9 229.59,-310.22 217,-307.22 205.62,-304.51 119.95,-307.8 112,-299.22 84.44,-269.48 84.4,-146.45 112,-116.74 120.27,-107.84 209.54,-112.76 221,-108.74 237.93,-102.81 254.63,-92.49 268.56,-82.25"/>
+<polygon fill="#000000" stroke="#000000" points="271.03,-84.77 276.86,-75.93 266.79,-79.2 271.03,-84.77"/>
+</g>
+<!-- moduleA__B____init__ -->
+<g id="node9" class="node">
+<title>moduleA__B____init__</title>
+<ellipse fill="#99ff99" fill-opacity="0.698039" stroke="black" cx="202" cy="-151.61" rx="78.48" ry="26.74"/>
+<text text-anchor="middle" x="202" y="-155.41" font-family="Times,serif" font-size="14.00" fill="#000000">__init__</text>
+<text text-anchor="middle" x="202" y="-140.41" font-family="Times,serif" font-size="14.00" fill="#000000">(moduleA.py:12)</text>
+</g>
+<!-- moduleA__A__funcA&#45;&gt;moduleA__B____init__ -->
+<g id="edge9" class="edge">
+<title>moduleA__A__funcA&#45;&gt;moduleA__B____init__</title>
+<path fill="none" stroke="#000000" d="M241.04,-323.75C229.71,-317.74 219.14,-309.77 212,-299.22 190.03,-266.76 190.82,-220.46 194.98,-188.62"/>
+<polygon fill="#000000" stroke="#000000" points="198.49,-188.82 196.49,-178.42 191.56,-187.8 198.49,-188.82"/>
+</g>
+<!-- moduleA__B__funcB1 -->
+<g id="node10" class="node">
+<title>moduleA__B__funcB1</title>
+<ellipse fill="#99ff99" fill-opacity="0.698039" stroke="black" cx="474" cy="-241.35" rx="78.48" ry="26.74"/>
+<text text-anchor="middle" x="474" y="-245.15" font-family="Times,serif" font-size="14.00" fill="#000000">funcB1</text>
+<text text-anchor="middle" x="474" y="-230.15" font-family="Times,serif" font-size="14.00" fill="#000000">(moduleA.py:15)</text>
+</g>
+<!-- moduleA__A__funcA&#45;&gt;moduleA__B__funcB1 -->
+<g id="edge10" class="edge">
+<title>moduleA__A__funcA&#45;&gt;moduleA__B__funcB1</title>
+<path fill="none" stroke="#000000" d="M345.15,-320.2C358.51,-313.8 372.99,-306.52 386,-299.22 401.11,-290.75 417.16,-280.71 431.35,-271.44"/>
+<polygon fill="#000000" stroke="#000000" points="433.5,-274.21 439.92,-265.79 429.65,-268.37 433.5,-274.21"/>
+</g>
+<!-- moduleA__B__funcB2 -->
+<g id="node11" class="node">
+<title>moduleA__B__funcB2</title>
+<ellipse fill="#99ff99" fill-opacity="0.698039" stroke="black" cx="299" cy="-241.35" rx="78.48" ry="26.74"/>
+<text text-anchor="middle" x="299" y="-245.15" font-family="Times,serif" font-size="14.00" fill="#000000">funcB2</text>
+<text text-anchor="middle" x="299" y="-230.15" font-family="Times,serif" font-size="14.00" fill="#000000">(moduleA.py:18)</text>
+</g>
+<!-- moduleA__A__funcA&#45;&gt;moduleA__B__funcB2 -->
+<g id="edge7" class="edge">
+<title>moduleA__A__funcA&#45;&gt;moduleA__B__funcB2</title>
+<path fill="none" stroke="#000000" d="M299,-315.15C299,-304.01 299,-290.8 299,-278.72"/>
+<polygon fill="#000000" stroke="#000000" points="302.5,-278.46 299,-268.46 295.5,-278.46 302.5,-278.46"/>
+</g>
+<!-- moduleA__B____funcB22 -->
+<g id="node8" class="node">
+<title>moduleA__B____funcB22</title>
+<ellipse fill="#99ff99" fill-opacity="0.698039" stroke="black" cx="377" cy="-151.61" rx="78.48" ry="26.74"/>
+<text text-anchor="middle" x="377" y="-155.41" font-family="Times,serif" font-size="14.00" fill="#000000">__funcB22</text>
+<text text-anchor="middle" x="377" y="-140.41" font-family="Times,serif" font-size="14.00" fill="#000000">(moduleA.py:23)</text>
+</g>
+<!-- moduleA__B____funcB22&#45;&gt;moduleA__SequenceOn -->
+<g id="edge5" class="edge">
+<title>moduleA__B____funcB22&#45;&gt;moduleA__SequenceOn</title>
+<path fill="none" stroke="#000000" d="M358.39,-125.44C349.38,-113.25 338.44,-98.45 328.74,-85.33"/>
+<polygon fill="#000000" stroke="#000000" points="331.34,-82.96 322.58,-77 325.71,-87.12 331.34,-82.96"/>
+</g>
+<!-- moduleA__B__funcB1&#45;&gt;moduleA__SequenceOn -->
+<g id="edge1" class="edge">
+<title>moduleA__B__funcB1&#45;&gt;moduleA__SequenceOn</title>
+<path fill="none" stroke="#000000" d="M483.34,-214.51C491.56,-186.68 498.88,-142.89 475,-116.74 461.76,-102.24 405.47,-115.39 387,-108.74 370.26,-102.71 353.7,-92.48 339.83,-82.34"/>
+<polygon fill="#000000" stroke="#000000" points="341.65,-79.32 331.56,-76.08 337.42,-84.9 341.65,-79.32"/>
+</g>
+<!-- moduleA__B__funcB2&#45;&gt;moduleA__SequenceOn -->
+<g id="edge2" class="edge">
+<title>moduleA__B__funcB2&#45;&gt;moduleA__SequenceOn</title>
+<path fill="none" stroke="#000000" d="M355.74,-222.6C400.82,-207.92 457.4,-188 464,-178.48 479.63,-155.93 482.37,-137.12 464,-116.74 452.48,-103.96 403.15,-114.67 387,-108.74 370.3,-102.6 353.75,-92.35 339.87,-82.22"/>
+<polygon fill="#000000" stroke="#000000" points="341.69,-79.21 331.6,-75.97 337.47,-84.79 341.69,-79.21"/>
+</g>
+<!-- moduleA__B__funcB2&#45;&gt;moduleA__B____funcB22 -->
+<g id="edge4" class="edge">
+<title>moduleA__B__funcB2&#45;&gt;moduleA__B____funcB22</title>
+<path fill="none" stroke="#000000" d="M321.14,-215.44C329.46,-206.09 339.04,-195.31 347.9,-185.35"/>
+<polygon fill="#000000" stroke="#000000" points="350.77,-187.38 354.8,-177.58 345.54,-182.73 350.77,-187.38"/>
+</g>
+<!-- moduleA__B__funcB2&#45;&gt;moduleA__B____init__ -->
+<g id="edge3" class="edge">
+<title>moduleA__B__funcB2&#45;&gt;moduleA__B____init__</title>
+<path fill="none" stroke="#000000" d="M271.98,-215.91C260.94,-205.93 248.05,-194.26 236.35,-183.68"/>
+<polygon fill="#000000" stroke="#000000" points="238.64,-181.03 228.88,-176.92 233.94,-186.22 238.64,-181.03"/>
+</g>
+</g>
+</svg>
+`,
+                    ready: function() {
+                        var gv = this
+                        gv.nodes().click(function () {
+                            var $set = $()
+                            $set.push(this)
+                            $set = $set.add(gv.linkedFrom(this, true))
+                            $set = $set.add(gv.linkedTo(this, true))
+                            gv.highlight($set, true)
+                            gv.bringToFront($set)
+                        })
+                        $(document).keydown(function (evt) {
+                            if (evt.keyCode == 27) {
+                                gv.highlight()
+                            }
+                        })
+                    }
+                });
+            });
+		</script>
+	</body>
+</html>
